@@ -1,0 +1,84 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .card {
+    background-color: white;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .progress-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  } 
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .timer, .score {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+@keyframes blinkRed {
+    0% { background-color: #ff0000; }
+    50% { background-color: transparent; }
+    100% { background-color: #ff0000; }
+  }
+  
+  @keyframes blinkGreen {
+    0% { background-color: #00ff00; }
+    50% { background-color: transparent; }
+    100% { background-color: #00ff00; }
+  }
+  
+  progress.blink-red {
+    animation: blinkRed 2.5s 2;
+  }
+  
+  progress.blink-green {
+    animation: blinkGreen 3.5s 2;
+  }
+  
+  .change {
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  
+  .change.increase {
+    color: green;
+  }
+  
+  .change.decrease {
+    color: red;
+  }
+  

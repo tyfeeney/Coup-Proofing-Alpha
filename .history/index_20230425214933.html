@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Coup Proofing  Game</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Coup-Proofing Game</h1>
+    <div class="card">
+      <p class="statement"></p>
+    </div>
+    <div class="buttons">
+      <button id="left-btn">Option 1</button>
+      <button id="right-btn">Option 2</button>
+    </div>
+
+
+<div class="progress-container">
+  <div>
+    <p>Stability:</p>
+    <progress id="stability-progress" value="0" max="30"></progress>
+    <span id="stability-change" class="change"></span>
+  </div>
+  <div>
+    <p>Coup Risk:</p>
+    <progress id="coupRisk-progress" value="0" max="30"></progress>
+    <span id="coupRisk-change" class="change"></span>
+  </div>
+</div>
+
+
+
+    <div class="timer">
+      Time remaining: <span id="time">300</span> seconds
+    </div>
+    <div class="ending" hidden>
+      <p id="ending"></p>
+    </div>
+  </div>
+  <script src="scripts.js"></script>
+</body>
+</html>
