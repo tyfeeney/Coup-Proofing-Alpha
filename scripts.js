@@ -194,7 +194,7 @@ progressBars["social"] = 0;
 progressBars["economic"] = 0;
 const barNames = Object.keys(progressBars);
 let currentIndex = 0;
-let timeLeft = 180;
+let timeLeft = 270;
 let timedOut = 0;
 
 function progressElementTransform(rawScore) {
