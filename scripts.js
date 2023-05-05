@@ -16,20 +16,20 @@ const scenarios = [
     explanation: "Officers should only be rotated at critical junctures. Rotating officers too frequently can lead to a generational divide between you and your officers."
   },
   {
-    question: 'Some officers in your army are retiring. How will you place them post-military careers?',
-    option1: 'Place officers in positions based their position in the military',
-    option2: 'Hand pick officers for their new careers.',
-    effect1: { appointment: 0, economic: -1, social: 0 },
-    effect2: { appointment: 0, economic: 1, social: 0 },
-    explanation: "Hand picking post-military career paths makes officers dependent on you for their career outside of the military."
-  },
-  {
-    question: 'You face pressure to reward your officers. How should you reward them?',
-    option1: 'Reward officers individually and informally.',
-    option2: 'Let the military as an institution control a part of the economy',
+    question: 'The military wants autonomous control over some economic activity. Do you give them this control?',
+    option1: 'No, do not give this autonomy.',
+    option2: 'Yes, let the military as an institution control a part of the economy.',
     effect1: { appointment: 0, economic: 2, social: 0 },
     effect2: { appointment: 0, economic: -2, social: 0 },
-    explanation: "Giving the military autonomous control of a part of the economy makes officers more independent of you. Instead, officers should need to rely on you for favors."
+    explanation: "Giving the military autonomous control of a part of the economy makes officers more independent of you."
+  },
+  {
+    question: 'Some military officers want to get involved in illict smuggling and currency manipulation. Do you let them?',
+    option1: 'No.',
+    option2: 'Yes, on a limited selective basis.',
+    effect1: { appointment: 0, economic: -2, social: 0 },
+    effect2: { appointment: 0, economic: 2, social: 0 },
+    explanation: "Allowing your officers to conduct illict activities on a personal basis makes them vulnerable to you when their loyalty is questioned."
   },
   {
     question: 'You seek to promote some soldiers into new officers. How should you decide who is promoted?',
@@ -40,21 +40,38 @@ const scenarios = [
     explanation: "Selecting officers that align with your ethnicity and religion keeps them motivated to keep you in power, especially if you are in the minority."
   },
   {
-    question: 'Soldiers are calling on you to diversify your imperial guard, which largely aligns with your religion. Do you diversify?',
-    option1: 'No, keep the soldiers religiously aligned with you',
+    question: 'Some officers in your army are retiring. How will you place them post-military careers?',
+    option1: 'Place officers in positions based only on their military career.',
+    option2: 'Hand pick officers for their new careers.',
+    effect1: { appointment: -1, economic: 0, social: 0 },
+    effect2: { appointment: 1, economic: 0, social: 0 },
+    explanation: "Hand picking post-military career paths makes officers dependent on you for their career outside of the military."
+  },
+  {
+    question: 'Soldiers are calling on you to diversify your personal guard, all of whom affiliate with your religion. Do you diversify?',
+    option1: 'No, keep the soldiers religiously aligned with you.',
     option2: 'Yes, diversify the guard.',
     effect1: { appointment: 0, economic: 0, social: 1 },
     effect2: { appointment: 0, economic: 0, social: -1 },
     explanation: "Again, officers of your religious and ethnic background have more motivation to keep you in power personally."
   }, 
   {
-    question: 'An uprising has started. How do you prevent mutanies and defections?',
-    option1: 'Recruit more soldiers through rank-and-file (broad base) conscription',
+    question: 'An uprising has started. How do you deal with mutanies and defections?',
+    option1: 'Recruit more officers through rank-and-file (broad base) conscription to replace defected officers.',
     option2: 'Monitor stationed units, and dissolve those not loyal.',
     effect1: { appointment: 0, economic: 0, social: -2 },
     effect2: { appointment: 0, economic: 0, social: 2 },
-    explanation: "In times of uprising, it is important to prevent disloyalty and solder defections."
+    explanation: "In times of uprising, it is important to prevent disloyalty and solder defection. Recruiting more officers may lead to recruiting disloyal officers."
+  },
+  {
+    question: 'Some of your active-duty upper-class officers want to involve themselves in politics. Do you let them?',
+    option1: 'No, they should only focus on their military posts.',
+    option2: 'Yes. Involve officers in politics and encourage officer candidates to gain political experience.',
+    effect1: { appointment: 0, economic: 0, social: -2 },
+    effect2: { appointment: 0, economic: 0, social: 2 },
+    explanation: "It is important to integrate the military into your political regime and keep officers close, rather than keep them separated and independent."
   }
+
   /*
   {
     question: 'You are facing economic difficulties. What do you do?',
@@ -181,7 +198,7 @@ let timeLeft = 180;
 let timedOut = 0;
 
 function progressElementTransform(rawScore) {
-    return 3 * rawScore + 15;
+    return 2.5 * rawScore + 15;
 }
 
 let interval;
@@ -349,7 +366,6 @@ if (window.location.pathname.includes('ending.html')) {
   for (let bar of barNames) {
     sum += progressBars[bar];
   }
-  console.log(sum);
 
   if (timedOut) {
     timeoutMessage += "You ran out of time to complete all scenarios, but based on your progress so far:";
