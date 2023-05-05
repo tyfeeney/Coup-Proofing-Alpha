@@ -181,8 +181,9 @@ function setScenario(index) {
 function chooseOption(option) {
   const scenario = scenarios[currentIndex];
   const effect = scenario[`effect${option}`];
-  stability += effect.stability;
-  coupRisk += effect.coupRisk;
+  appointment += effect.appointment;
+  social += effect.social;
+  economic += effect.economic;
   currentIndex++;
   setScenario(currentIndex);
 }
