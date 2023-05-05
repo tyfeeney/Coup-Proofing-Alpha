@@ -1,5 +1,55 @@
 const scenarios = [
   {
+    question: 'Your are preparing to take over as President from your father. How should you prepare for your transition?',
+    option1: 'Market yourself towards political elites, young politicians, and buisness interests.',
+    option2: 'Serve a military position first, and build your relationship to the military.',
+    effect1: { appointment: -2, economic: 0, social: 0 },
+    effect2: { appointment: 2, economic: 0, social: 0 }
+  },
+  {
+    question: 'You are now President, and have the option to reshuffle your officers. How long should officers in your armed forces serve?',
+    option1: 'Four or five years at most.',
+    option2: 'Until they are no longer necessary, such as during a transfer of power.',
+    effect1: { appointment: -2, economic: 0, social: 0 },
+    effect2: { appointment: 2, economic: 0, social: 0 }
+  },
+  {
+    question: 'Some officers in your army are retiring. How will you place them post-military careers?',
+    option1: 'Place officers in positions based their position in the military',
+    option2: 'Hand pick officers for their new careers.',
+    effect1: { appointment: 0, economic: -2, social: 0 },
+    effect2: { appointment: 0, economic: 2, social: 0 }
+  },
+  {
+    question: 'You face pressure to reward your officers. How should you reward them?',
+    option1: 'Reward officers individually and informally.',
+    option2: 'Let the military as an institution control a part of the economy',
+    effect1: { appointment: 0, economic: 2, social: 0 },
+    effect2: { appointment: 0, economic: -2, social: 0 }
+  },
+  {
+    question: 'You seek to promote some soldiers into new officers. How should you decide who is promoted?',
+    option1: 'Promote based on ethnicity and religion.',
+    option2: 'Promote only meritocratically.',
+    effect1: { appointment: 0, economic: 0, social: 2 },
+    effect2: { appointment: 0, economic: 0, social: -2 }
+  },
+  {
+    question: 'Soldiers are calling on you to diversify your imperial guard, which largely aligns with your religion. Do you diversify?',
+    option1: 'No, keep the soldiers religiously aligned with you',
+    option2: 'Yes, diversify the guard.',
+    effect1: { appointment: 0, economic: 0, social: 2 },
+    effect2: { appointment: 0, economic: 0, social: -2 }
+  }, 
+  {
+    question: 'An uprising has started. How do you prevent mutanies and defections?',
+    option1: 'Recruit more soldiers through rank-and-file (broad base) conscription',
+    option2: 'Monitor stationed units, and dissolve those not loyal.',
+    effect1: { appointment: 0, economic: 0, social: -2 },
+    effect2: { appointment: 0, economic: 0, social: 2 }
+  }
+  /*
+  {
     question: 'You are facing economic difficulties. What do you do?',
     option1: 'Increase military spending to coup-proof your regime.',
     option2: 'Invest in social programs to address public grievances.',
@@ -104,10 +154,8 @@ const scenarios = [
     effect1: { stability: 1, coupRisk: 0 },
     effect2: { stability: 1, coupRisk: 1 }
   }
+  */
 ];
-
-
-
 const scenarioElem = document.querySelector('.statement');
 const option1Btn = document.getElementById('left-btn');
 const option2Btn = document.getElementById('right-btn');
@@ -116,8 +164,9 @@ const endingElem = document.getElementById('ending');
 
 let currentIndex = 0;
 let timeLeft = 300;
-let stability = 0;
-let coupRisk = 0;
+let appointment = 0;
+let social = 0;
+let economic = 0;
 
 function setScenario(index) {
   if (index >= scenarios.length) {
@@ -156,22 +205,18 @@ function showEnding() {
   endingElem.hidden = false;
 }
 
-function updateProgressBars(stabilityChange, coupRiskChange) {
-  const stabilityProgress = document.getElementById('stability-progress');
-  const coupRiskProgress = document.getElementById('coupRisk-progress');
-  stabilityProgress.value = stability + 15;
-  coupRiskProgress.value = coupRisk + 15;
-
-  const stabilityChangeElement = document.getElementById('stability-change');
-  const coupRiskChangeElement = document.getElementById('coupRisk-change');
-
-  stabilityChangeElement.textContent = stabilityChange > 0 ? `+${stabilityChange}` : stabilityChange;
-  stabilityChangeElement.classList.toggle('increase', stabilityChange > 0);
-  stabilityChangeElement.classList.toggle('decrease', stabilityChange < 0);
-
-  coupRiskChangeElement.textContent = coupRiskChange > 0 ? `+${coupRiskChange}` : coupRiskChange;
-  coupRiskChangeElement.classList.toggle('increase', coupRiskChange > 0);
-  coupRiskChangeElement.classList.toggle('decrease', coupRiskChange < 0);
+function updateProgressBars(appointmentChange, economicChange, socialChange) {
+  const progressBars = ["appointment", "economic", "social"]
+  const progressBarDelta = [appointmentChange, economicChange, socialChange]
+  for (var i = 0; i < progressBars.length; i++) {
+      const change = progressBarDelta[i];
+      const progressElement = document.getElementById(progressBars[i] + '-progress')
+      const changeElement = document.getElementById(progressBars[i] + '-change');
+      progressElement.value = progressBarDelta[i] + 15
+      stabilityChangeElement.textContent = change > 0 ? `+${change}` : change;
+      changeElement.classList.toggle('increase', change > 0);
+      changeElement.classList.toggle('decrease', change < 0);
+  }
 
   setTimeout(() => {
     stabilityChangeElement.textContent = '';
@@ -182,9 +227,10 @@ function updateProgressBars(stabilityChange, coupRiskChange) {
 function chooseOption(option) {
   const scenario = scenarios[currentIndex];
   const effect = scenario[`effect${option}`];
-  updateProgressBars(effect.stability, effect.coupRisk);
-  stability += effect.stability;
-  coupRisk += effect.coupRisk;
+  updateProgressBars(effect.appointment, effect.economic, effect.social);
+  appointment += effect.appointment;
+  economic += effect.economic;
+  social += effect.social;
   currentIndex++;
   setScenario(currentIndex);
 }
@@ -206,14 +252,12 @@ function displayEnding() {
   const endingElement = document.getElementById('ending');
   let message;
 
-  if (stability > 0 && coupRisk <= 0) {
-    message = 'Congratulations! Your country is stable and coup-proof.';
-  } else if (stability <= 0 && coupRisk > 0) {
-    message = 'Unfortunately, your country has collapsed due to instability and high coup risk.';
-  } else if (stability <= 0 && coupRisk <= 0) {
-    message = 'Your country is coup-proof, but it suffers from poor stability.';
+  if (appointment + social + economic > 0) {
+    message = 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
+  } else if (appointment + social + economic == 0 ){
+    message = 'Your have made coup-proofing decisions of mixed effectiveness.';
   } else {
-    message = 'Your country is stable, but it remains at risk of a coup.';
+    message = "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
   }
 
   endingElement.textContent = message;
@@ -256,20 +300,20 @@ function init() {
 
 
 if (window.location.pathname.includes('ending.html')) {
-  const stability = parseInt(localStorage.getItem('stability'), 10);
-  const coupRisk = parseInt(localStorage.getItem('coupRisk'), 10);
+  const appointment = parseInt(localStorage.getItem('appointment'), 10);
+  const social = parseInt(localStorage.getItem('social'), 10);
+  const economic = parseInt(localStorage.getItem('economic'), 10);
   const endingElement = document.getElementById('ending');
   let message;
 
-  if (stability > 0 && coupRisk <= 0) {
-    message = 'Congratulations! Your country is stable and coup-proof.';
-  } else if (stability <= 0 && coupRisk > 0) {
-    message = 'Unfortunately, your country has collapsed due to instability and high coup risk.';
-  } else if (stability <= 0 && coupRisk <= 0) {
-    message = 'Your country is coup-proof, but it suffers from poor stability.';
+  if (appointment + social + economic > 0) {
+    message = 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
+  } else if (appointment + social + economic == 0 ){
+    message = 'Your have made coup-proofing decisions of mixed effectiveness.';
   } else {
-    message = 'Your country is stable, but it remains at risk of a coup.';
+    message = "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
   }
+
 
   endingElement.textContent = message;
 }
