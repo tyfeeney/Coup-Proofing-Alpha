@@ -170,41 +170,35 @@ const continueBtn = document.getElementById('continue-btn');
 const instructionsButton = document.getElementById('instructions-btn')
 const timerElem = document.getElementById('time');
 const endingElem = document.getElementById('ending');
-const progressBars = ["appointment", "economic", "social"]
-
+var progressBars = {};
+progressBars["appointment"] = 0;
+progressBars["social"] = 0;
+progressBars["economic"] = 0;
+const barNames = Object.keys(progressBars);
 let currentIndex = 0;
 let timeLeft = 180;
-let appointment = 0;
-let social = 0;
-let economic = 0;
-let interval;
+let timedOut = 0;
 
-function chooseOption(option) {
-  const scenario = scenarios[currentIndex];
-  const effect = scenario[`effect${option}`];
-  appointment += effect.appointment;
-  social += effect.social;
-  economic += effect.economic;
-  currentIndex++;
-  setScenario(currentIndex);
+function progressElementTransform(rawScore) {
+    return 3 * rawScore + 15;
 }
 
+let interval;
+
 function transitionToEnding(timedOut) {
-  localStorage.setItem('appointment', appointment);
-  localStorage.setItem('economic', economic);
-  localStorage.setItem('social', social);
-  localStorage.setItem('timedOut', timedOut);
-  localStorage.setItem('timeLeft', null);
+  window.onbeforeunload = function(event) {
+  };
+  putSavedElements(true, timedOut);
   window.location.href = 'ending.html';
 }
 
-function updateProgressBars(appointmentChange, economicChange, socialChange) {
-  const progressBarDelta = [appointmentChange, economicChange, socialChange]
-  for (var i = 0; i < progressBars.length; i++) {
-      const change = progressBarDelta[i];
-      const progressElement = document.getElementById(progressBars[i] + '-progress')
-      const changeElement = document.getElementById(progressBars[i] + '-change');
-      progressElement.value = progressBarDelta[i] + 15
+function updateProgressBars(effect) {
+  for (let bar of barNames) {
+      change = effect[bar];
+      const progressElement = document.getElementById(bar + '-progress')
+      const changeElement = document.getElementById(bar + '-change');
+      progressBars[bar] += change;
+      progressElement.value = progressElementTransform(progressBars[bar]);
       changeElement.textContent = change > 0 ? `+${change}` : change;
       changeElement.textContent = change == 0 ? "" : changeElement.textContent;
       changeElement.classList.toggle('increase', change > 0);
@@ -218,10 +212,7 @@ function updateProgressBars(appointmentChange, economicChange, socialChange) {
 function chooseOption(option) {
   const scenario = scenarios[currentIndex];
   const effect = scenario[`effect${option}`];
-  updateProgressBars(effect.appointment, effect.economic, effect.social);
-  appointment += effect.appointment;
-  economic += effect.economic;
-  social += effect.social;
+  updateProgressBars(effect);
   showExplanation(currentIndex);
   currentIndex++;
 }
@@ -234,18 +225,12 @@ function showExplanation(index) {
   const scenario = scenarios[index];
   const statementElement = document.querySelector('.statement');
   statementElement.textContent = scenario.explanation;
-  console.log(interval);
   localStorage.setItem('timeLeft', timeLeft);
   clearInterval(interval);
 }
 
-
 // Timer countdown
 function startTimer() {
-  timeString = localStorage.getItem('timeLeft');
-  if (timeString != "NaN" && timeString != "null" && timeString != null) {
-    timeLeft = parseInt(timeString);
-  }
   timerElem.textContent = timeLeft;
   interval = setInterval(() => {
     timeLeft--;
@@ -276,10 +261,44 @@ function setScenario(index) {
   rightButton.textContent = scenario.option2;
 }
 
+function getSavedElements() {
+  timeString = localStorage.getItem('timeLeft');
+  if (timeString != "NaN" && timeString != "null" && timeString != null) {
+    timeLeft = parseInt(timeString);
+  }
+  progressBarsString = localStorage.getItem('progressBars')
+  if (progressBarsString != "NaN" && progressBarsString != "null" && progressBarsString != null) {
+    progressBars = JSON.parse(progressBarsString)
+  }
+  currentIndexString = localStorage.getItem('currentIndex')
+  if (currentIndexString != "NaN" && currentIndexString != "null" && currentIndexString != null) {
+    currentIndex = parseInt(currentIndexString);
+  }
+  timedOutString = localStorage.getItem('timedOut');
+  if (timedOutString != "NaN" && timedOutString != "null" && timedOutString != null) {
+    timedOut = parseInt(timedOutString);
+  }
+}
+
+function putSavedElements(isEnd, timedOut = null) {
+  if (!isEnd) {
+    localStorage.setItem('timeLeft', timeLeft);
+    localStorage.setItem('progressBars', JSON.stringify(progressBars));
+    localStorage.setItem('currentIndex', currentIndex);
+  } else {
+    localStorage.clear();
+  }
+  localStorage.setItem('timedOut', timedOut);
+}
 // Initialize game
 function init() {
+  for (let bar of barNames) {
+    const progressElement = document.getElementById(bar + '-progress')
+    progressElement.value = progressElementTransform(progressBars[bar]);
+  }
   setScenario(currentIndex);
   startTimer();
+
   continueBtn.style.display = "none";
 
   option1Btn.addEventListener('click', () => {
@@ -303,36 +322,36 @@ function init() {
 function switchToInstructions() {
   window.onbeforeunload = function(event) {
   };
-  localStorage.setItem('timeLeft', timeLeft);
+  putSavedElements(false);
   window.location.href = 'instructions.html'
 }
 
 window.onbeforeunload = function(event) {
-  localStorage.setItem('timeLeft', null);
+  putSavedElements(true);
 };
 
+getSavedElements();
 if (window.location.pathname.includes('ending.html')) {
-  const appointment = parseInt(localStorage.getItem('appointment'), 10);
-  const social = parseInt(localStorage.getItem('social'), 10);
-  const economic = parseInt(localStorage.getItem('economic'), 10);
-  const timedOut = parseInt(localStorage.getItem('timedOut'));
   const endingElement = document.getElementById('ending');
   const timeoutEndingElement = document.getElementById('ending-timeout');
   var timeoutMessage = ''
   var message = ''
+  var sum = 0;
+  for (let bar of barNames) {
+    sum += progressBars[bar];
+  }
 
   if (timedOut) {
     timeoutMessage += "You ran out of time to complete all scenarios, but based on your progress so far:";
   }
 
-  if (appointment + social + economic > 0) {
+  if (sum > 0) {
     message += 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
-  } else if (appointment + social + economic == 0 ){
+  } else if (sum == 0){
     message += 'Your have made coup-proofing decisions of mixed effectiveness.';
   } else {
     message += "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
   }
-
 
   endingElement.textContent = message;
   timeoutEndingElement.textContent = timeoutMessage;
