@@ -3,50 +3,57 @@ const scenarios = [
     question: 'Your are preparing to take over as President from your father. How should you prepare for your transition?',
     option1: 'Market yourself towards political elites, young politicians, and buisness interests.',
     option2: 'Serve a military position first, and build your relationship to the military.',
-    effect1: { appointment: -2, economic: 0, social: 0 },
-    effect2: { appointment: 2, economic: 0, social: 0 }
+    effect1: { appointment: -1, economic: 0, social: 0 },
+    effect2: { appointment: 1, economic: 0, social: 0 },
+    explanation: "As an heir to an authoritarian state, building a strong relationship to the military can help keep the military tied to the leader of the country"
   },
   {
     question: 'You are now President, and have the option to reshuffle your officers. How long should officers in your armed forces serve?',
-    option1: 'Four or five years at most.',
+    option1: 'A few years.',
     option2: 'Until they are no longer necessary, such as during a transfer of power.',
     effect1: { appointment: -2, economic: 0, social: 0 },
-    effect2: { appointment: 2, economic: 0, social: 0 }
+    effect2: { appointment: 2, economic: 0, social: 0 },
+    explanation: "Officers should only be rotated at critical junctures. Rotating officers too frequently can lead to a generational divide between you and your officers."
   },
   {
     question: 'Some officers in your army are retiring. How will you place them post-military careers?',
     option1: 'Place officers in positions based their position in the military',
     option2: 'Hand pick officers for their new careers.',
-    effect1: { appointment: 0, economic: -2, social: 0 },
-    effect2: { appointment: 0, economic: 2, social: 0 }
+    effect1: { appointment: 0, economic: -1, social: 0 },
+    effect2: { appointment: 0, economic: 1, social: 0 },
+    explanation: "Hand picking post-military career paths makes officers dependent on you for their career outside of the military."
   },
   {
     question: 'You face pressure to reward your officers. How should you reward them?',
     option1: 'Reward officers individually and informally.',
     option2: 'Let the military as an institution control a part of the economy',
     effect1: { appointment: 0, economic: 2, social: 0 },
-    effect2: { appointment: 0, economic: -2, social: 0 }
+    effect2: { appointment: 0, economic: -2, social: 0 },
+    explanation: "Giving the military autonomous control of a part of the economy makes officers more independent of you. Instead, officers should need to rely on you for favors."
   },
   {
     question: 'You seek to promote some soldiers into new officers. How should you decide who is promoted?',
     option1: 'Promote based on ethnicity and religion.',
     option2: 'Promote only meritocratically.',
     effect1: { appointment: 0, economic: 0, social: 2 },
-    effect2: { appointment: 0, economic: 0, social: -2 }
+    effect2: { appointment: 0, economic: 0, social: -2 },
+    explanation: "Selecting officers that align with your ethnicity and religion keeps them motivated to keep you in power, especially if you are in the minority."
   },
   {
     question: 'Soldiers are calling on you to diversify your imperial guard, which largely aligns with your religion. Do you diversify?',
     option1: 'No, keep the soldiers religiously aligned with you',
     option2: 'Yes, diversify the guard.',
-    effect1: { appointment: 0, economic: 0, social: 2 },
-    effect2: { appointment: 0, economic: 0, social: -2 }
+    effect1: { appointment: 0, economic: 0, social: 1 },
+    effect2: { appointment: 0, economic: 0, social: -1 },
+    explanation: "Again, officers of your religious and ethnic background have more motivation to keep you in power personally."
   }, 
   {
     question: 'An uprising has started. How do you prevent mutanies and defections?',
     option1: 'Recruit more soldiers through rank-and-file (broad base) conscription',
     option2: 'Monitor stationed units, and dissolve those not loyal.',
     effect1: { appointment: 0, economic: 0, social: -2 },
-    effect2: { appointment: 0, economic: 0, social: 2 }
+    effect2: { appointment: 0, economic: 0, social: 2 },
+    explanation: "In times of uprising, it is important to prevent disloyalty and solder defections."
   }
   /*
   {
@@ -159,24 +166,18 @@ const scenarios = [
 const scenarioElem = document.querySelector('.statement');
 const option1Btn = document.getElementById('left-btn');
 const option2Btn = document.getElementById('right-btn');
+const continueBtn = document.getElementById('continue-btn');
+const instructionsButton = document.getElementById('instructions-btn')
 const timerElem = document.getElementById('time');
 const endingElem = document.getElementById('ending');
+const progressBars = ["appointment", "economic", "social"]
 
 let currentIndex = 0;
-let timeLeft = 300;
+let timeLeft = 180;
 let appointment = 0;
 let social = 0;
 let economic = 0;
-
-function setScenario(index) {
-  if (index >= scenarios.length) {
-    showEnding();
-    return;
-  }
-  scenarioElem.textContent = scenarios[index].question;
-  option1Btn.textContent = scenarios[index].option1;
-  option2Btn.textContent = scenarios[index].option2;
-}
+let interval;
 
 function chooseOption(option) {
   const scenario = scenarios[currentIndex];
@@ -188,39 +189,30 @@ function chooseOption(option) {
   setScenario(currentIndex);
 }
 
-function showEnding() {
-  scenarioElem.remove();
-  option1Btn.remove();
-  option2Btn.remove();
-
-  if (appointment + social + economic > 0) {
-    message = 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
-  } else if (appointment + social + economic == 0 ){
-    message = 'Your have made coup-proofing decisions of mixed effectiveness.';
-  } else {
-    message = "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
-  }
-
-  endingElem.hidden = false;
+function transitionToEnding(timedOut) {
+  localStorage.setItem('appointment', appointment);
+  localStorage.setItem('economic', economic);
+  localStorage.setItem('social', social);
+  localStorage.setItem('timedOut', timedOut);
+  localStorage.setItem('timeLeft', null);
+  window.location.href = 'ending.html';
 }
 
 function updateProgressBars(appointmentChange, economicChange, socialChange) {
-  const progressBars = ["appointment", "economic", "social"]
   const progressBarDelta = [appointmentChange, economicChange, socialChange]
   for (var i = 0; i < progressBars.length; i++) {
       const change = progressBarDelta[i];
       const progressElement = document.getElementById(progressBars[i] + '-progress')
       const changeElement = document.getElementById(progressBars[i] + '-change');
       progressElement.value = progressBarDelta[i] + 15
-      stabilityChangeElement.textContent = change > 0 ? `+${change}` : change;
+      changeElement.textContent = change > 0 ? `+${change}` : change;
+      changeElement.textContent = change == 0 ? "" : changeElement.textContent;
       changeElement.classList.toggle('increase', change > 0);
       changeElement.classList.toggle('decrease', change < 0);
+      setTimeout(() => {
+        changeElement.textContent = '';
+      }, 2000);
   }
-
-  setTimeout(() => {
-    stabilityChangeElement.textContent = '';
-    coupRiskChangeElement.textContent = '';
-  }, 2000);
 }
 
 function chooseOption(option) {
@@ -230,45 +222,49 @@ function chooseOption(option) {
   appointment += effect.appointment;
   economic += effect.economic;
   social += effect.social;
+  showExplanation(currentIndex);
   currentIndex++;
-  setScenario(currentIndex);
+}
+
+function showExplanation(index) {
+  option1Btn.style.display = "none";
+  option2Btn.style.display = "none";
+  continueBtn.style.display = "block";
+  instructionsButton.style.display = "none";
+  const scenario = scenarios[index];
+  const statementElement = document.querySelector('.statement');
+  statementElement.textContent = scenario.explanation;
+  console.log(interval);
+  localStorage.setItem('timeLeft', timeLeft);
+  clearInterval(interval);
 }
 
 
 // Timer countdown
 function startTimer() {
-  const interval = setInterval(() => {
+  timeString = localStorage.getItem('timeLeft');
+  if (timeString != "NaN" && timeString != "null" && timeString != null) {
+    timeLeft = parseInt(timeString);
+  }
+  timerElem.textContent = timeLeft;
+  interval = setInterval(() => {
     timeLeft--;
     timerElem.textContent = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(interval);
-      showEnding();
+      transitionToEnding(1);
     }
   }, 1000);
 }
 
-function displayEnding() {
-  const endingElement = document.getElementById('ending');
-  let message;
-
-  if (appointment + social + economic > 0) {
-    message = 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
-  } else if (appointment + social + economic == 0 ){
-    message = 'Your have made coup-proofing decisions of mixed effectiveness.';
-  } else {
-    message = "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
-  }
-
-  endingElement.textContent = message;
-  endingElement.parentElement.hidden = false;
-}
-
 function setScenario(index) {
+  option1Btn.style.display = "block";
+  option2Btn.style.display = "block";
+  continueBtn.style.display = "none";
+  instructionsButton.style.display = "block";
+
   if (index >= scenarios.length) {
-    // Game over, save the stability and coupRisk values and redirect to the ending page
-    localStorage.setItem('stability', stability);
-    localStorage.setItem('coupRisk', coupRisk);
-    window.location.href = 'ending.html';
+    transitionToEnding(0);
     return;
   }
   const scenario = scenarios[index];
@@ -280,12 +276,11 @@ function setScenario(index) {
   rightButton.textContent = scenario.option2;
 }
 
-
-
 // Initialize game
 function init() {
   setScenario(currentIndex);
   startTimer();
+  continueBtn.style.display = "none";
 
   option1Btn.addEventListener('click', () => {
     chooseOption(1);
@@ -294,26 +289,53 @@ function init() {
   option2Btn.addEventListener('click', () => {
     chooseOption(2);
   });
+
+  instructionsButton.addEventListener('click', () => {
+    switchToInstructions();
+  });
+
+  continueBtn.addEventListener('click' , () => {
+    startTimer();
+    setScenario(currentIndex);
+  });
 }
 
+function switchToInstructions() {
+  window.onbeforeunload = function(event) {
+  };
+  localStorage.setItem('timeLeft', timeLeft);
+  window.location.href = 'instructions.html'
+}
 
+window.onbeforeunload = function(event) {
+  localStorage.setItem('timeLeft', null);
+};
 
 if (window.location.pathname.includes('ending.html')) {
   const appointment = parseInt(localStorage.getItem('appointment'), 10);
   const social = parseInt(localStorage.getItem('social'), 10);
   const economic = parseInt(localStorage.getItem('economic'), 10);
+  const timedOut = parseInt(localStorage.getItem('timedOut'));
   const endingElement = document.getElementById('ending');
-  let message;
+  const timeoutEndingElement = document.getElementById('ending-timeout');
+  var timeoutMessage = ''
+  var message = ''
+
+  if (timedOut) {
+    timeoutMessage += "You ran out of time to complete all scenarios, but based on your progress so far:";
+  }
 
   if (appointment + social + economic > 0) {
-    message = 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
+    message += 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
   } else if (appointment + social + economic == 0 ){
-    message = 'Your have made coup-proofing decisions of mixed effectiveness.';
+    message += 'Your have made coup-proofing decisions of mixed effectiveness.';
   } else {
-    message = "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
+    message += "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
   }
 
 
   endingElement.textContent = message;
+  timeoutEndingElement.textContent = timeoutMessage;
+} else {
+  init();
 }
-init();

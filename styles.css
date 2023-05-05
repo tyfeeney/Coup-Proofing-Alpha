@@ -41,6 +41,9 @@ body {
     margin-bottom: 20px;
   }
   
+.ending-timeout {
+  font-weight: bold;
+}
 /* ... (existing code) */
 
 .buttons {

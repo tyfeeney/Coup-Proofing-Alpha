@@ -9,13 +9,18 @@
 <body>
   <div class="container">
     <h1>Coup-Proofing Game</h1>
-    <button onclick="window.location.href='instructions.html'">Instructions</button>
+    <div class="buttons">
+      <button id="instructions-btn">Instructions</button>
+    </div>
     <div class="card">
       <p class="statement"></p>
     </div>
     <div class="buttons">
       <button id="left-btn">Option 1</button>
       <button id="right-btn">Option 2</button>
+    </div>
+    <div class="buttons">
+      <button id="continue-btn">Continue</button>
     </div>
 
 
@@ -40,7 +45,7 @@
 
 
     <div class="timer">
-      Time remaining: <span id="time">300</span> seconds
+      Time remaining: <span id="time"></span> seconds
     </div>
     <div class="ending" hidden>
       <p id="ending"></p>
