@@ -193,14 +193,12 @@ function showEnding() {
   option1Btn.remove();
   option2Btn.remove();
 
-  if (stability > 0 && coupRisk <= 0) {
-    endingElem.textContent = 'Your country remains stable and avoids a coup.';
-  } else if (stability <= 0 && coupRisk <= 0) {
-    endingElem.textContent = 'Your country faces economic and political challenges but avoids a coup.';
-  } else if (stability > 0 && coupRisk > 0) {
-    endingElem.textContent = 'Your country experiences a coup despite relative stability.';
+  if (appointment + social + economic > 0) {
+    message = 'Congratulations! Your have made decisions to keep your officers loyal to you, and you have coup-proofed your regime successfully.';
+  } else if (appointment + social + economic == 0 ){
+    message = 'Your have made coup-proofing decisions of mixed effectiveness.';
   } else {
-    endingElem.textContent = 'Your country collapses due to instability and a coup.';
+    message = "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
   }
 
   endingElem.hidden = false;
