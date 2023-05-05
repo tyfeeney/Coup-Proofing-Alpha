@@ -167,6 +167,7 @@ const scenarioElem = document.querySelector('.statement');
 const option1Btn = document.getElementById('left-btn');
 const option2Btn = document.getElementById('right-btn');
 const continueBtn = document.getElementById('continue-btn');
+const startBtn = document.getElementById('start-btn')
 const instructionsButton = document.getElementById('instructions-btn')
 const timerElem = document.getElementById('time');
 const endingElem = document.getElementById('ending');
@@ -188,7 +189,7 @@ let interval;
 function transitionToEnding(timedOut) {
   window.onbeforeunload = function(event) {
   };
-  putSavedElements(true, timedOut);
+  putSavedElements(false, timedOut);
   window.location.href = 'ending.html';
 }
 
@@ -310,7 +311,7 @@ function init() {
   });
 
   instructionsButton.addEventListener('click', () => {
-    switchToInstructions();
+    transitionToInstructions();
   });
 
   continueBtn.addEventListener('click' , () => {
@@ -319,11 +320,16 @@ function init() {
   });
 }
 
-function switchToInstructions() {
+function transitionToInstructions() {
   window.onbeforeunload = function(event) {
   };
   putSavedElements(false);
   window.location.href = 'instructions.html'
+}
+
+function transitionToStart() {
+  putSavedElements(true);
+  window.location.href = 'index.html'
 }
 
 window.onbeforeunload = function(event) {
@@ -334,12 +340,16 @@ getSavedElements();
 if (window.location.pathname.includes('ending.html')) {
   const endingElement = document.getElementById('ending');
   const timeoutEndingElement = document.getElementById('ending-timeout');
+  startBtn.addEventListener('click', () => {
+    transitionToStart();
+  })
   var timeoutMessage = ''
   var message = ''
   var sum = 0;
   for (let bar of barNames) {
     sum += progressBars[bar];
   }
+  console.log(sum);
 
   if (timedOut) {
     timeoutMessage += "You ran out of time to complete all scenarios, but based on your progress so far:";
@@ -350,7 +360,7 @@ if (window.location.pathname.includes('ending.html')) {
   } else if (sum == 0){
     message += 'Your have made coup-proofing decisions of mixed effectiveness.';
   } else {
-    message += "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime"
+    message += "You have not made decisions that will keep your officers loyal. Your coup-proofing is ineffective, risking your regime."
   }
 
   endingElement.textContent = message;
